@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Вход в систему{% endblock %}
+
+{% block content %}
+<style>
+    .login-card {
+        width: 360px;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+        padding: 2.5rem;
+        text-align: center;
+        backdrop-filter: blur(5px);
+        transform: translateY(0);
+        transition: transform 0.4s ease, box-shadow 0.4s ease;
+        animation: fadeIn 1s ease-out;
+        border: none;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+    }
+
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 70vh;
+        padding: 2rem 1rem;
+    }
+
+    .login-header {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 16px 16px 0 0;
+        margin: -2.5rem -2.5rem 2rem -2.5rem;
+    }
+
+    .login-form .form-control {
+        border-radius: 10px;
+        border: 1px solid #e0e0e0;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.9);
+    }
+
+    .login-form .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.15);
+        background: white;
+    }
+
+    .login-form .btn-primary {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        border: none;
+        border-radius: 10px;
+        padding: 0.75rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .login-form .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+    }
+
+    .test-access {
+        background: rgba(0, 123, 255, 0.08);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-top: 1.5rem;
+        border-left: 4px solid #007bff;
+    }
+
+    .test-access small {
+        color: #495057;
+        line-height: 1.5;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+</style>
+
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h4 class="mb-0">Вход в систему</h4>
+        </div>
+        <form method="POST" class="login-form">
+            <div class="mb-3">
+                <label for="username" class="form-label">Логин:</label>
+                <input type="text" class="form-control" id="username" name="username" required placeholder="Введите логин">
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Пароль:</label>
+                <input type="password" class="form-control" id="password" name="password" required placeholder="Введите пароль">
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Войти</button>
+        </form>
+        </div>
+    </div>
+{% endblock %}

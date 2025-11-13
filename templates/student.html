@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .student-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: transform 0.4s ease, box-shadow 0.4s ease;
+        margin-bottom: 1.5rem;
+    }
+
+    .student-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-header {
+        border-radius: 12px 12px 0 0 !important;
+        font-weight: 600;
+    }
+
+    .table-responsive {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .table th {
+        background: #f8f9fa;
+        font-weight: 600;
+    }
+
+    .badge {
+        font-size: 0.75em;
+    }
+
+    .alert {
+        border-radius: 8px;
+        border: none;
+    }
+
+    .bg-light {
+        border-radius: 8px;
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Личный кабинет студента</h1>
+    <div class="bg-light p-2 rounded text-dark">
+        <strong>Группа:</strong> {{ student.group.name }} | <strong>ЦМК:</strong> {{ student.group.cmk }}
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card student-card">
+            <div class="card-header bg-primary text-white"><h5>Мои данные</h5></div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr><th>ФИО:</th><td>{{ student.full_name }}</td></tr>
+                    <tr><th>Телефон:</th><td>{{ student.phone or 'Не указан' }}</td></tr>
+                    <tr><th>Группа:</th><td>{{ student.group.name }}</td></tr>
+                    <tr><th>Статус темы:</th>
+                        <td>{% if topic %}<span class="badge bg-success">Назначена</span>{% else %}<span class="badge bg-warning">Ожидает</span>{% endif %}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if topic %}
+<div class="row">
+    <div class="col-12">
+        <div class="card student-card">
+            <div class="card-header bg-success text-white"><h5>Моя тема</h5></div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h4>{{ topic.title }}</h4>
+                        <table class="table table-striped mt-3">
+                            <tr><th>Тип:</th><td>{{ topic.work_type.name }}</td></tr>
+                            <tr><th>Предмет:</th><td>{{ topic.work_type.subject }}</td></tr>
+                            <tr><th>Руководитель:</th><td>{{ topic.supervisor.full_name }}</td></tr>
+                            <tr><th>Статус:</th><td><span class="badge bg-success">Назначена</span></td></tr>
+                        </table>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-light student-card">
+                            <div class="card-body text-center">
+                                <h5>Статус работы</h5>
+                                <div class="alert alert-info mt-3">
+                                    <strong>Тема утверждена</strong>
+                                    <p class="mb-0 small">Ожидайте инструкций от руководителя</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="card student-card">
+            <div class="card-header bg-warning"><h5>Ожидание назначения темы</h5></div>
+            <div class="card-body text-center py-5">
+                <h4>Тема ещё не назначена</h4>
+                <p class="text-muted">
+                    Зайди в <strong>личный кабинет</strong> позже или спроси у старосты.
+                </p>
+                <div class="alert alert-info mt-4">
+                    <strong>Контакты для связи:</strong><br>
+                    Староста<br>
+                    Администратор
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card student-card">
+            <div class="card-header"><h5>Полезная информация</h5></div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Если тема уже назначена:</h6>
+                        <ul>
+                            <li>Свяжитесь с руководителем</li>
+                            <li>Изучите требования</li>
+                            <li>Составьте план</li>
+                            <li>Начните сбор материалов</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Контакты для связи:</h6>
+                        <ul>
+                            <li><strong>Староста</strong></li>
+                            <li><strong>Администратор</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

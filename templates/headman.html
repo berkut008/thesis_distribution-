@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .headman-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: transform 0.4s ease, box-shadow 0.4s ease;
+        margin-bottom: 1.5rem;
+    }
+
+    .headman-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-header {
+        border-radius: 12px 12px 0 0 !important;
+        font-weight: 600;
+    }
+
+    .table-responsive {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .table th {
+        background: #f8f9fa;
+        font-weight: 600;
+    }
+
+    .badge {
+        font-size: 0.75em;
+    }
+
+    .btn {
+        transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .reservation-card {
+        transition: all 0.3s ease;
+    }
+
+    .reservation-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Панель старосты</h1>
+    <div class="bg-light p-2 rounded text-dark">
+        <strong>Группа:</strong> {{ group.name }} | <strong>ЦМК:</strong> {{ group.cmk }}
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card headman-card">
+            <div class="card-header bg-warning"><h5>Мои активные резервации</h5></div>
+            <div class="card-body" id="reservationsList"><div class="text-center text-muted">Загрузка...</div></div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card headman-card">
+            <div class="card-header bg-primary text-white"><h5>Студенты ({{ students|length }})</h5></div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead><tr><th>ФИО</th><th>Телефон</th><th>Тема</th><th>Статус</th></tr></thead>
+                        <tbody>
+                            {% for s in students %}
+                            <tr>
+                                <td>{{ s.full_name }}</td>
+                                <td>{{ s.phone or '-' }}</td>
+                                <td>{% if s.topic %}{{ s.topic.title[:50] }}...{% else %}<span class="text-muted">Не назначена</span>{% endif %}</td>
+                                <td>{% if s.topic %}<span class="badge bg-success">Назначена</span>{% else %}<span class="badge bg-warning">Ожидает</span>{% endif %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card headman-card">
+            <div class="card-header bg-success text-white"><h5>Доступные темы</h5></div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead><tr><th>Тема</th><th>Тип</th><th>Предмет</th><th>Руководитель</th><th>Статус</th><th>Действия</th></tr></thead>
+                        <tbody>
+                            {% for t in topics %}
+                            <tr id="topic-{{ t.id }}">
+                                <td>{{ t.title }}</td>
+                                <td>{{ t.work_type.name }}</td>
+                                <td>{{ t.work_type.subject }}</td>
+                                <td>{{ t.supervisor.full_name }}</td>
+                                <td>
+                                    {% if t.status == 'free' %}<span class="badge bg-success">Свободна</span>
+                                    {% elif t.status == 'reserved' and t.group_id == group.id %}<span class="badge bg-warning">Зарезервирована вами</span>
+                                    {% elif t.status == 'reserved' %}<span class="badge bg-secondary">Зарезервирована</span>
+                                    {% elif t.status == 'assigned' and t.group_id == group.id %}<span class="badge bg-primary">Наша группа</span>
+                                    {% else %}<span class="badge bg-secondary">Занята</span>{% endif %}
+                                </td>
+                                <td>
+                                    {% if t.status == 'free' %}
+                                        <button class="btn btn-sm btn-success" onclick="reserveTopic({{ t.id }})">Зарезервировать</button>
+                                    {% elif t.status == 'reserved' and t.group_id == group.id %}
+                                        <select id="studentSelect{{ t.id }}" class="form-select form-select-sm d-inline-block w-auto">
+                                            <option value="">— Студент —</option>
+                                            {% for s in students %}{% if not s.topic %}<option value="{{ s.id }}">{{ s.full_name }}</option>{% endif %}{% endfor %}
+                                        </select>
+                                        <button id="assignBtn{{ t.id }}" class="btn btn-sm btn-primary" disabled onclick="assignTopic({{ t.id }})">Назначить</button>
+                                    {% else %}
+                                        <span class="text-muted">Недоступна</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function loadReservations() {
+    fetch('/headman/get_reservations').then(r=>r.json()).then(d=>{
+        const el = document.getElementById('reservationsList');
+        if (d.reservations && d.reservations.length) {
+            let html = '<div class="row">';
+            d.reservations.forEach(r=>{
+                html += `<div class="col-md-6 mb-2"><div class="card reservation-card"><div class="card-body py-2 d-flex justify-content-between align-items-center"><div><small><strong>${r.topic_title}</strong></small><br><small class="text-muted">Осталось: ${r.minutes_left} мин.</small></div><button class="btn btn-sm btn-outline-danger" onclick="cancelReservation(${r.topic_id})">Отмена</button></div></div></div>`;
+            });
+            html += '</div>'; el.innerHTML = html;
+        } else el.innerHTML = '<div class="text-center text-muted">Нет активных резерваций</div>';
+    });
+}
+
+function reserveTopic(id){
+    if(confirm('Зарезервировать на 30 мин?'))
+        fetch('/headman/reserve_topic',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({topic_id:id})
+        }).then(r=>r.json()).then(d=>{
+            alert(d.success||d.error);
+            location.reload();
+        });
+}
+
+function cancelReservation(id){
+    if(confirm('Отменить?'))
+        fetch('/headman/cancel_reservation',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({topic_id:id})
+        }).then(r=>r.json()).then(d=>{
+            alert(d.success||d.error);
+            location.reload();
+        });
+}
+
+function assignTopic(id){
+    const sel = document.getElementById('studentSelect'+id);
+    const sid = sel.value;
+    if(!sid) return alert('Выберите студента');
+    if(confirm('Назначить?'))
+        fetch('/headman/assign_topic',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({topic_id:id,student_id:sid})
+        }).then(r=>r.json()).then(d=>{
+            alert(d.success||d.error);
+            location.reload();
+        });
+}
+
+{% for t in topics %}{% if t.status == 'free' or (t.status == 'reserved' and t.group_id == group.id) %}
+document.getElementById('studentSelect{{ t.id }}').addEventListener('change', function(){
+    document.getElementById('assignBtn{{ t.id }}').disabled = !this.value;
+});
+{% endif %}{% endfor %}
+
+setInterval(loadReservations, 30000);
+loadReservations();
+</script>
+{% endblock %}

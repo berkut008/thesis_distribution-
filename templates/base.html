@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Система распределения тем | ФЭК РГЭУ РИНХ{% endblock %}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: linear-gradient(-45deg, #003366, #004c99, #0073e6, #003366);
+            background-size: 400% 400%;
+            animation: gradientShift 10s ease infinite;
+            font-family: "Segoe UI", sans-serif;
+            color: #fff;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        header {
+            background: rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(8px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Логотип и название в шапке */
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo img {
+            width: 60px;
+            height: 60px;
+            transition: transform 0.4s ease;
+            border-radius: 8px;
+        }
+
+        .logo img:hover {
+            transform: rotate(10deg) scale(1.05);
+        }
+
+        .header-title h4 {
+            margin: 0;
+            font-weight: 600;
+            color: white;
+        }
+
+        .header-title .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 2rem;
+            border-radius: 20px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 1200px;
+            color: #fff;
+        }
+
+        footer {
+            background: rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(8px);
+            padding: 1.5rem 0;
+            margin-top: auto;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Центральный логотип на странице входа */
+        .page-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-logo .logo img {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 1rem;
+        }
+
+        .college-title {
+            font-weight: 600;
+            color: white;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+
+        /* === AI ПОМОЩНИК СТИЛИ === */
+        .ai-icon {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+            transition: all .2s ease;
+            z-index: 1000;
+        }
+        .ai-icon:hover { transform: scale(1.05); }
+        .ai-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4757;
+            color: #fff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .ai-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1001;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .ai-modal-content {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 500px;
+            height: 80vh;
+            max-height: 700px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .ai-header {
+            background: #007bff;
+            color: #fff;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 16px 16px 0 0;
+        }
+        .ai-header h3 { margin: 0; font-size: 18px; font-weight: 600; }
+        .ai-close {
+            cursor: pointer;
+            font-size: 28px;
+            font-weight: bold;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background .2s;
+        }
+        .ai-close:hover { background: rgba(255,255,255,.2); }
+
+        .ai-chat-messages {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            background: #1a1a2e;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            line-height: 1.4;
+            word-wrap: break-word;
+            animation: msgIn 0.3s ease;
+            font-size: 14px;
+        }
+        @keyframes msgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+        /* ЯРКИЕ БЕЛЫЕ СООБЩЕНИЯ ПОМОЩНИКА */
+        .bot-message {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            color: #2c3e50 !important;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            font-weight: 500;
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: #fff;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,123,255,0.3);
+        }
+
+        .ai-input-area {
+            padding: 12px 16px;
+            border-top: 1px solid #dee2e6;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            background: #fff;
+        }
+        #ai-user-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #ced4da;
+            border-radius: 24px;
+            outline: none;
+            font-size: 15px;
+            transition: border .2s;
+        }
+        #ai-user-input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,.1);
+        }
+
+        #ai-send-btn, .voice-btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 24px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all .2s;
+        }
+        #ai-send-btn {
+            background: #007bff;
+            color: #fff;
+        }
+        #ai-send-btn:hover { background: #0056b3; }
+        .voice-btn {
+            background: #28a745;
+            color: #fff;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .voice-btn.recording {
+            background: #dc3545;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        #ai-voice-status {
+            height: 24px;
+            font-style: italic;
+            color: #6c757d;
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+        }
+
+        @media (max-width: 576px) {
+            .ai-modal-content {
+                width: 95%;
+                height: 85vh;
+                border-radius: 12px;
+            }
+            .ai-header { padding: 14px 16px; }
+            .ai-header h3 { font-size: 17px; }
+            .ai-chat-messages { padding: 12px; }
+            .ai-input-area { padding: 10px 12px; }
+
+            .header-logo {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+            }
+            .logo img {
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+        /* Стили для уведомлений */
+        .alert {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            backdrop-filter: blur(8px);
+        }
+    </style>
+
+    {% block styles %}{% endblock %}
+</head>
+<body>
+
+    <!-- === HEADER === -->
+    <header>
+        <div class="header-logo">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='logo.jpg') }}" alt="Логотип ФЭК">
+            </div>
+            <div class="header-title">
+                <h4>Система распределения тем</h4>
+                <p class="subtitle">ФИНАНСОВО-ЭКОНОМИЧЕСКИЙ КОЛЛЕДЖ (РИНХ)</p>
+            </div>
+        </div>
+        <div>
+            {% if current_user.is_authenticated %}
+                <span>{{ current_user.username }}</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline-light btn-sm ms-3">Выйти</a>
+            {% else %}
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- === MAIN CONTENT === -->
+    <main>
+        <!-- Уведомления -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Основной контент -->
+        <div class="panel">
+            {% block content %}
+            <!-- Содержимое страницы будет здесь -->
+            {% endblock %}
+        </div>
+    </main>
+
+    <!-- === AI ПОМОЩНИК === -->
+    <div id="ai-support-icon" class="ai-icon">
+        <svg width="50" height="50" viewBox="0 0 24 24" fill="#007bff">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+            <circle cx="12" cy="12" r="3" fill="white"/>
+        </svg>
+        <span class="ai-badge">AI</span>
+    </div>
+
+    <div id="ai-chat-modal" class="ai-modal">
+        <div class="ai-modal-content">
+            <div class="ai-header">
+                <h3>AI Помощник ФЭК</h3>
+                <span class="ai-close">×</span>
+            </div>
+            <div class="ai-chat-messages" id="ai-chat-messages">
+                <div class="message bot-message">
+                    <p>Привет! Я AI-помощник ФЭК. Могу помочь с расписанием, преподавателями и другой информацией. Чем могу помочь?</p>
+                </div>
+            </div>
+            <div class="ai-input-area">
+                <input type="text" id="ai-user-input" placeholder="Напиши или скажи..." maxlength="500">
+                <button id="ai-voice-btn" class="voice-btn" title="Голосовой ввод">
+                    <i class="bi bi-mic"></i>
+                </button>
+                <button id="ai-send-btn">Отправить</button>
+            </div>
+            <div id="ai-voice-status" class="text-center text-muted small p-1"></div>
+        </div>
+    </div>
+
+    <!-- === FOOTER === -->
+    <footer>
+        <div class="container text-center">
+            <p class="mb-2"><strong>Контакты для связи:</strong></p>
+            <p class="mb-1">📞 Староста группы</p>
+            <p class="mb-1">📧 Администратор системы</p>
+            <p class="mt-2 text-muted small">&copy; 2025 Система распределения учебных тем | ФИНАНСОВО-ЭКОНОМИЧЕСКИЙ КОЛЛЕДЖ (РИНХ)</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const icon = document.getElementById('ai-support-icon');
+        const modal = document.getElementById('ai-chat-modal');
+        const closeBtn = document.querySelector('.ai-close');
+        const sendBtn = document.getElementById('ai-send-btn');
+        const voiceBtn = document.getElementById('ai-voice-btn');
+        const userInput = document.getElementById('ai-user-input');
+        const messages = document.getElementById('ai-chat-messages');
+        const voiceStatus = document.getElementById('ai-voice-status');
+
+        let recognition;
+        let isRecording = false;
+
+        // Скрытие иконки на 24 часа
+        const hiddenTs = localStorage.getItem('ai-icon-hidden');
+        if (hiddenTs && (Date.now() - parseInt(hiddenTs) < 24 * 60 * 60 * 1000)) {
+            icon.style.display = 'none';
+        }
+
+        // Открытие/закрытие
+        icon.addEventListener('click', () => {
+            modal.style.display = 'block';
+            userInput.focus();
+        });
+        closeBtn.addEventListener('click', () => modal.style.display = 'none');
+
+        // === ГОЛОСОВОЙ ВВОД ===
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'ru-RU';
+            recognition.interimResults = true;
+            recognition.continuous = false;
+
+            const updateStatus = (text, color = '') => {
+                voiceStatus.textContent = text;
+                voiceStatus.style.color = color;
+            };
+
+            voiceBtn.addEventListener('click', () => {
+                if (isRecording) {
+                    recognition.stop();
+                    return;
+                }
+                recognition.start();
+                isRecording = true;
+                voiceBtn.classList.add('recording');
+                voiceBtn.innerHTML = '<i class="bi bi-mic-fill"></i>';
+                updateStatus('Слушаю...', '#28a745');
+            });
+
+            recognition.onresult = (event) => {
+                let final = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    if (event.results[i].isFinal) {
+                        final += event.results[i][0].transcript;
+                    }
+                }
+                if (final) {
+                    userInput.value = final.trim();
+                    sendMessage();
+                }
+            };
+
+            recognition.onerror = () => {
+                voiceBtn.classList.remove('recording');
+                voiceBtn.innerHTML = '<i class="bi bi-mic"></i>';
+                updateStatus('Ошибка. Повтори', '#dc3545');
+                setTimeout(() => updateStatus(''), 2000);
+                isRecording = false;
+            };
+
+            recognition.onend = () => {
+                if (isRecording) {
+                    voiceBtn.classList.remove('recording');
+                    voiceBtn.innerHTML = '<i class="bi bi-mic"></i>';
+                    updateStatus('');
+                    isRecording = false;
+                }
+            };
+
+        } else {
+            voiceBtn.style.display = 'none';
+        }
+
+        // === ОТПРАВКА СООБЩЕНИЙ ===
+        function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            const userMsg = document.createElement('div');
+            userMsg.className = 'message user-message';
+            userMsg.innerHTML = `<p>${text}</p>`;
+            messages.appendChild(userMsg);
+
+            setTimeout(() => {
+                const botMsg = document.createElement('div');
+                botMsg.className = 'message bot-message';
+                botMsg.innerHTML = `<p>${getBotResponse(text)}</p>`;
+                messages.appendChild(botMsg);
+                messages.scrollTop = messages.scrollHeight;
+            }, 600);
+
+            userInput.value = '';
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage(); });
+
+        // === ЛОГИКА AI ПОМОЩНИКА ===
+        function getBotResponse(text) {
+            const t = text.toLowerCase().trim();
+            const userGroup = "{{ current_user.group.name if current_user.is_authenticated and current_user.group else '' }}";
+
+            // РАСПИСАНИЕ
+            if (t.includes('расписание') || t.includes('уроки') || t.includes('пары') || t.includes('экзамен')) {
+                let pdfUrl = '';
+                let desc = '';
+                if (userGroup && userGroup.includes('ИТ')) {
+                    pdfUrl = 'https://rsue.ru/rfec/student/UchProcess/о_09.02.07.pdf';
+                    desc = `📚 Расписание для группы ${userGroup}`;
+                } else if (userGroup && (userGroup.includes('Финанс') || userGroup.includes('38.02.06'))) {
+                    pdfUrl = 'https://rsue.ru/rfec/student/UchProcess/о_38.02.06.pdf';
+                    desc = `📚 Расписание для группы ${userGroup}`;
+                } else if (t.includes('бух')) {
+                    pdfUrl = 'https://rsue.ru/rfec/student/UchProcess/о_38.02.01.pdf';
+                    desc = '📚 Расписание: Экономика и бухучёт';
+                } else if (t.includes('экзамен')) {
+                    pdfUrl = 'https://rsue.ru/rfec/student/расписание%20гиа%20ОФО.pdf';
+                    desc = '📝 Расписание ГИА (экзамены)';
+                }
+                if (pdfUrl) {
+                    setTimeout(() => window.open(pdfUrl, '_blank'), 1000);
+                    return `${desc}\n\n📎 Открываю PDF-файл...`;
+                }
+                return '❓ Укажите группу или направление:\n• "Расписание ИТ-21"\n• "Звонки" \n• "Экзамены"';
+            }
+
+            if (t.includes('звонк')) {
+                setTimeout(() => window.open('https://rsue.ru/rfec/student/zvonki.pdf', '_blank'), 1000);
+                return '🔔 Расписание звонков\n\n📎 Открываю файл со звонками...';
+            }
+
+            // ПРЕПОДАВАТЕЛИ
+            if (t.includes('кто') && (t.includes('препод') || t.includes('преподаватель'))) {
+                const teachers = {
+                    'аветикова': '👩‍🏫 Аветикова Л.Е.\n📚 Бухучёт\n🏆 Высшая категория',
+                    'бутук': '👨‍🏫 Бутук Н.В.\n📚 Статистика\n⏰ 21 год опыта',
+                    'сычев': '👨‍🏫 Сычёв Р.А.\n📚 Директор ФЭК\n🎓 Кандидат экономических наук',
+                    'петрова': '👩‍🏫 Петрова А.Г.\n📚 Математика',
+                    'каюмова': '👩‍🏫 Каюмова Е.В.\n📚 Экономика',
+                    'каточина': '👩‍🏫 Каточина С.А.\n📚 Налоги',
+                    'ушкова': '👩‍🏫 Ускова И.И.\n📚 Английский язык\n🎓 Кандидат филологических наук'
+                };
+                for (let key in teachers) {
+                    if (t.includes(key)) return teachers[key];
+                }
+                return '❓ Не знаю такого преподавателя.\n\n📋 Попробуйте:\n• "Аветикова"\n• "Бутук"\n• "Сычёв"';
+            }
+
+            // КОНТАКТЫ
+            if (t.includes('телефон') || t.includes('контакт')) {
+                return `📞 Контакты ФЭК:\n\n🏢 Приёмная: +7 (863) 210-79-94\n👨‍💼 Директор: +7 (863) 267-96-00\n\n📍 Адрес: Ростов-на-Дону, ул. Красноармейская, 170`;
+            }
+            if (t.includes('почта') || t.includes('email')) return '📧 Электронная почта:\nkolledg-rinh@mail.ru';
+
+            // СИСТЕМА РАСПРЕДЕЛЕНИЯ ТЕМ
+            if (t.includes('тема') || t.includes('распредел') || t.includes('курсов') || t.includes('диплом')) {
+                return '🎓 Система распределения тем:\n\n📋 Для работы с темами войдите в систему и перейдите в соответствующий раздел:\n\n• 👨‍💼 Админ-панель - загрузка данных\n• 👨‍🎓 Панель старосты - резервация тем\n• 👩‍🎓 Личный кабинет - просмотр своей темы';
+            }
+
+            // ПРИВЕТСТВИЯ
+            if (/привет|хай|здравствуй|добрый|hello/i.test(t)) return '👋 Привет! Рад вас видеть!\n\nЧем могу помочь? Спросите о:\n• 📚 Расписании\n• 👨‍🏫 Преподавателях\n• 📞 Контактах\n• 🎓 Распределении тем';
+            if (/спасибо|благодар/i.test(t)) return '😊 Всегда пожалуйста! Обращайтесь ещё!';
+            if (/пока|до свидан/i.test(t)) return '👋 До свидания! Удачи в учёбе! 🎓';
+
+            return '❓ Не совсем понял вопрос.\n\n💡 Спросите о:\n• 📚 "Расписание ИТ-21"\n• 👨‍🏫 "Кто преподаватель Бутук?"\n• 📞 "Телефон ФЭК"\n• 📧 "Почта колледжа"\n• 🎓 "Распределение тем"';
+        }
+    });
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>
